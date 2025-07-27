@@ -9,7 +9,7 @@ import { NavbarDemo } from "@/components/navbar/navbar";
 export default function Home() {
   return (
     <>
-      <NavbarDemo />
+      {/* <NavbarDemo /> */}
       <main>
         <Hero />
         <Features />
@@ -17,7 +17,7 @@ export default function Home() {
         <DemoPreview />
         <CtaSection />
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
