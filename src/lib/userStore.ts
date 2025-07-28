@@ -1,8 +1,17 @@
 import { create } from "zustand";
 
+export interface User {
+  _id: string;
+  email: string;
+  fullName: string;
+  username: string;
+  profilePic: string;
+  // Add any other fields you need
+}
+
 interface UserState {
-  user: any | null;
-  setUser: (user: any) => void;
+  user: User | null;
+  setUser: (user: User) => void;
   clearUser: () => void;
 }
 

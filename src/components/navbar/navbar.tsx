@@ -6,6 +6,8 @@ import { useAuthStore } from "@/lib/authStore";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { LogOut, Settings } from "lucide-react";
+import EditProfileModal from "@/components/modals/EditProfileModal";
 
 export function NavbarDemo() {
   const user = useAuthStore((state) => state.user);
@@ -14,7 +16,9 @@ export function NavbarDemo() {
   const router = useRouter();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Only fetch if not already loaded
@@ -26,9 +30,27 @@ export function NavbarDemo() {
     }
   }, [user, setUser]);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        modalOpen &&
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node) &&
+        profileButtonRef.current &&
+        !profileButtonRef.current.contains(event.target as Node)
+      ) {
+        setModalOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [modalOpen]);
+
   return (
     <div className="relative w-full">
-      <nav className="flex items-center justify-between px-6 py-3 bg-white dark:bg-blue-950 shadow-md z-50">
+      <nav className="flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-900 shadow-md z-50">
         {/* Left: App Logo */}
         <div className="flex items-center gap-2">
           <img
@@ -45,6 +67,7 @@ export function NavbarDemo() {
           <ModeToggle />
           {user && user.fullName ? (
             <button
+              ref={profileButtonRef}
               className="rounded-full border-2 border-primary w-10 h-10 overflow-hidden focus:outline-none"
               onClick={() => setModalOpen((v) => !v)}
               title="Profile"
@@ -86,7 +109,7 @@ export function NavbarDemo() {
             className="absolute right-8 top-16 z-50"
             style={{ minWidth: 320 }}
           >
-            <div className="bg-white dark:bg-blue-950 rounded-2xl shadow-2xl border border-primary/10 py-4 px-0 flex flex-col gap-2">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-blue-600 py-4 px-0 flex flex-col gap-2">
               <div className="flex items-center gap-3 px-6 pb-3 border-b border-primary/10">
                 <img
                   src={user.profilePic}
@@ -106,10 +129,10 @@ export function NavbarDemo() {
                 className="flex items-center gap-2 px-6 py-3 text-base text-primary hover:bg-primary/10 transition font-medium"
                 onClick={() => {
                   setModalOpen(false);
-                  // Optionally navigate to account page
+                  setEditModalOpen(true);
                 }}
               >
-                <span className="material-symbols-outlined">settings</span>
+                <Settings className="w-5 h-5" />
                 Manage account
               </button>
               <button
@@ -121,13 +144,20 @@ export function NavbarDemo() {
                   window.location.href = "/";
                 }}
               >
-                <span className="material-symbols-outlined">logout</span>
+                <LogOut className="w-5 h-5" />
                 Logout
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        user={user}
+        onProfileUpdate={setUser}
+      />
     </div>
   );
 }
